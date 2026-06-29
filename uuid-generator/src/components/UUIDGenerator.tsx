@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { generateUUIDs, formatUUID, NAMESPACE_PRESETS } from '../utils/uuid';
+import { useTranslation } from './i18n/useTranslation';
 
 interface UUIDGeneratorProps {
   darkMode: boolean;
 }
 
 const UUIDGenerator: React.FC<UUIDGeneratorProps> = ({ darkMode }) => {
+  const t = useTranslation();
   const [version, setVersion] = useState<number>(4);
   const [count, setCount] = useState<number>(1);
   const [namespace, setNamespace] = useState<string>('');
@@ -21,12 +23,12 @@ const UUIDGenerator: React.FC<UUIDGeneratorProps> = ({ darkMode }) => {
     setError('');
     
     if (count < 1 || count > 1000) {
-      setError('Count must be between 1 and 1000');
+      setError(t.countError);
       return;
     }
 
     if ((version === 3 || version === 5) && (!namespace || !name)) {
-      setError('Namespace and Name are required for UUID v3/v5');
+      setError(t.namespaceRequired);
       return;
     }
 
@@ -47,7 +49,7 @@ const UUIDGenerator: React.FC<UUIDGeneratorProps> = ({ darkMode }) => {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      setToast({ message: '✓ Copied to clipboard', type: 'success' });
+      setToast({ message: t.copiedToClipboard, type: 'success' });
       setTimeout(() => setToast(null), 2000);
     } catch (err) {
       setToast({ message: '✗ Failed to copy', type: 'error' });

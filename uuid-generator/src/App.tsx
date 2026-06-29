@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import UUIDGenerator from './components/UUIDGenerator';
+import { useTranslation } from './components/i18n/useTranslation';
 
 function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -12,6 +13,8 @@ function App() {
     }
     return false;
   });
+
+  const { language, setLanguage } = useTranslation();
 
   useEffect(() => {
     localStorage.setItem('darkMode', String(darkMode));
@@ -26,13 +29,23 @@ function App() {
     <div className={`app ${darkMode ? 'dark' : ''}`}>
       <header className="app-header">
         <h1>🔖 UUID Generator</h1>
-        <button 
-          className="theme-toggle"
-          onClick={() => setDarkMode(!darkMode)}
-          title={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
-        >
-          {darkMode ? '☀️ Light' : '🌙 Dark'}
-        </button>
+        <div className="header-controls">
+          <select 
+            value={language} 
+            onChange={(e) => setLanguage(e.target.value as 'ja' | 'en')}
+            className="lang-select"
+          >
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+          </select>
+          <button 
+            className="theme-toggle"
+            onClick={() => setDarkMode(!darkMode)}
+            title={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
+          >
+            {darkMode ? '☀️ Light' : '🌙 Dark'}
+          </button>
+        </div>
       </header>
       
       <main>
@@ -96,6 +109,65 @@ function App() {
 
         .theme-toggle:hover {
           background: rgba(255,255,255,0.3);
+        }
+
+        .header-controls {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+        }
+
+        .lang-select {
+          padding: 8px 16px;
+          background: rgba(255,255,255,0.2);
+          border: none;
+          border-radius: 20px;
+          color: white;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background 0.3s;
+          outline: none;
+        }
+
+        .lang-select option {
+          background: #333;
+          color: white;
+        }
+
+        .lang-select:hover {
+          background: rgba(255,255,255,0.3);
+        }
+
+        .tab-nav {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          padding: 20px;
+          background: ${darkMode ? '#16213e' : '#fff'};
+          box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+          padding: 10px 20px;
+          background: transparent;
+          border: 2px solid ${darkMode ? '#444' : '#ddd'};
+          border-radius: 20px;
+          color: ${darkMode ? '#aaa' : '#666'};
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+          background: ${darkMode ? '#2a2a4e' : '#f0f0f0'};
+          border-color: ${darkMode ? '#667eea' : '#667eea'};
+          color: ${darkMode ? '#fff' : '#333'};
+        }
+
+        .tab-btn.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-color: transparent;
+          color: white;
         }
 
         main {

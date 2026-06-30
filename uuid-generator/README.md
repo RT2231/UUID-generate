@@ -1,94 +1,177 @@
 # UUID Generator
 
-A modern, feature-rich UUID generator web application built with React, TypeScript, and Vite.
+UUID (Universally Unique Identifier) を簡単に生成・コピー・ダウンロードできる Web ツールです。
 
-## Features
+## 特徴
 
-- **Multiple UUID Versions**: Support for UUID v1, v3, v4, v5, v6, v7, and v8
-- **Bulk Generation**: Generate up to 1000 UUIDs at once
-- **Multiple Output Formats**:
-  - Normal (with hyphens)
-  - No hyphens
-  - Uppercase
-  - Lowercase
-  - JSON
-  - CSV
-  - Newline separated
-- **Copy & Download**: Copy individual UUIDs or all at once, download as TXT/CSV/JSON
-- **Dark Mode**: Toggle between light and dark themes (persisted in localStorage)
-- **Responsive Design**: Works on desktop and mobile devices
-- **RFC 4122 Compliant**: All generated UUIDs follow the RFC 4122 standard
+- **多様な UUID バージョン対応**: v1, v3, v4, v5, v6, v7, v8 をサポート
+- **柔軟な出力形式**: 通常、ハイフンなし、大文字、小文字、JSON、CSV、改行区切り
+- **一括操作**: 最大 1000 件までの UUID を一括生成・コピー・ダウンロード
+- **ダークモード対応**: ライト/ダークモードを切り替え可能（設定は保存されます）
+- **モバイル対応**: スマートフォンでも快適に操作できるレスポンシブデザイン
+- **静的サイト**: サーバー不要で GitHub Pages や Cloudflare Pages にデプロイ可能
 
-## Quick Start
+## デモ
 
-### Development
+[GitHub Pages デモリンク] (ここにデモ URL を記載)
+
+## 対応 UUID バージョン
+
+| バージョン | 説明 | 追加入力 |
+| :--- | :--- | :--- |
+| **v1** | タイムスタンプベース (MAC アドレス使用) | なし |
+| **v3** | MD5 ハッシュベース | Namespace, Name |
+| **v4** | ランダムベース (推奨) | なし |
+| **v5** | SHA-1 ハッシュベース | Namespace, Name |
+| **v6** | ソート可能なタイムスタンプベース | なし |
+| **v7** | 新しいタイムスタンプベース (Unix エポック) | なし |
+| **v8** | カスタム用途 | なし (またはカスタム入力) |
+
+## インストールと実行
+
+### 前提条件
+
+- Node.js 18.x 以上
+- npm または yarn
+
+### ローカル開発
 
 ```bash
+# リポジトリのクローン
+git clone <repository-url>
 cd uuid-generator
+
+# 依存関係のインストール
 npm install
+
+# 開発サーバーの起動
 npm run dev
 ```
 
-### Build for Production
+ブラウザで `http://localhost:5173` (ポートは異なる場合があります) にアクセスしてください。
+
+### ビルド
 
 ```bash
+# 本番用ビルド
 npm run build
+
+# ビルド結果の確認 (プレビュー)
+npm run preview
 ```
 
-The built files will be in the `dist/` directory.
+`dist/` ディレクトリに静的ファイルが生成されます。
 
-### Deploy to GitHub Pages
+## 使用方法
 
-1. Build the project: `npm run build`
-2. Push the `dist/` folder to your `gh-pages` branch
-3. Configure GitHub Pages to use the `gh-pages` branch
+1. **バージョン選択**: ドロップダウンから生成したい UUID のバージョンを選択します。
+   - v3 と v5 を選択した場合は、Namespace と Name の入力欄が表示されます。
+2. **生成数入力**: 1 から 1000 の間の数値を入力します。
+3. **フォーマット選択**: 出力形式を選択します。
+4. **Generate ボタンをクリック**: UUID が生成され、一覧表示されます。
+5. **コピー**: 個別の UUID をコピーするか、「Copy All」で全てコピーできます。
+6. **ダウンロード**: TXT, CSV, JSON 形式でファイルをダウンロードできます。
 
-### Deploy to Cloudflare Pages
+## 技術スタック
 
-1. Build the project: `npm run build`
-2. Connect your repository to Cloudflare Pages
-3. Set build command: `npm run build`
-4. Set build output directory: `dist`
+- **Framework**: React 18
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **UUID Library**: [uuid](https://github.com/uuidjs/uuid)
+- **Styling**: CSS Modules (または Tailwind CSS / Styled Components など実装による)
+- **Icons**: SVG または Icon Library
 
-## Project Structure
+## プロジェクト構造
 
 ```
 uuid-generator/
-├── src/
-│   ├── components/
-│   │   └── UUIDGenerator.tsx    # Main generator component
-│   ├── utils/
-│   │   └── uuid.ts              # UUID generation utilities
-│   ├── App.tsx                  # Root component with theme toggle
-│   ├── main.tsx                 # Entry point
-│   └── index.css                # Global styles
 ├── public/
-│   ├── favicon.svg
-│   └── icons.svg
-├── dist/                        # Production build output
+│   └── favicon.ico
+├── src/
+│   ├── assets/
+│   ├── components/
+│   │   ├── Header.tsx
+│   │   ├── GeneratorForm.tsx
+│   │   ├── UuidList.tsx
+│   │   ├── UuidItem.tsx
+│   │   ├── Controls.tsx
+│   │   └── Toast.tsx
+│   ├── pages/
+│   │   └── Home.tsx
+│   ├── utils/
+│   │   ├── uuidGenerator.ts
+│   │   ├── formatters.ts
+│   │   └── download.ts
+│   ├── styles/
+│   │   ├── global.css
+│   │   └── variables.css
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── vite-env.d.ts
+├── index.html
 ├── package.json
 ├── tsconfig.json
-└── vite.config.ts
+├── vite.config.ts
+└── README.md
 ```
 
-## API (Future)
+## デプロイ
 
-For Cloudflare Workers integration, add an API endpoint:
+### GitHub Pages
+
+```bash
+# ビルド
+npm run build
+
+# dist ディレクトリを gh-pages ブランチへプッシュ (例：gh-pages パッケージ使用)
+npx gh-pages -d dist
+```
+
+リポジトリの設定で GitHub Pages のソースを `gh-pages` ブランチに設定してください。
+
+### Cloudflare Pages
+
+Cloudflare ダッシュボードからリポジトリを接続し、ビルドコマンド `npm run build`、ビルド出力ディレクトリ `dist` を設定してデプロイします。
+
+### Cloudflare Workers (API 版)
+
+API 機能を実装する場合は、`/api/uuid` エンドポイントを追加し、フロントエンドの `API_BASE` 設定を調整することで Workers 上で動作させることができます。
 
 ```typescript
-// /api/uuid
+// workers-example.ts のイメージ
 export default {
   async fetch(request: Request) {
     const url = new URL(request.url);
-    const version = parseInt(url.searchParams.get('v') || '4');
-    const count = parseInt(url.searchParams.get('count') || '1');
-    
-    // Generate UUIDs and return JSON
-    return Response.json({ uuids: generateUUIDs({ version, count }) });
+    if (url.pathname === '/api/uuid') {
+      // UUID 生成ロジック
+      return new Response(JSON.stringify({ uuid: generateUuid() }), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    // 静的ファイルの提供は Pages などに任せる想定
+    return new Response('Not Found', { status: 404 });
   }
 };
 ```
 
-## License
+## 今後の拡張アイデア
 
-MIT
+- [ ] UUID 検証機能 (Validate)
+- [ ] UUID 解析 (Version, Variant の表示)
+- [ ] お気に入り UUID 保存
+- [ ] 生成履歴機能
+- [ ] PWA 対応 (オフライン利用)
+- [ ] 多言語対応 (i18n)
+- [ ] UUID 比較ツール
+
+## ライセンス
+
+MIT License
+
+## 貢献
+
+バグ報告や機能要望、プルリクエストは歓迎します。Issue を作成するか、プルリクエストを送信してください。
+
+---
+
+This tool is designed to be simple, fast, and useful for developers.

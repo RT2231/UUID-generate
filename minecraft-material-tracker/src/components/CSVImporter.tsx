@@ -1,70 +1,75 @@
-import React, { useRef } from 'react';
-import { Button } from './ui';
-import { Upload, FileText } from 'lucide-react';
-import { parseCSV, parseTXT } from '../utils/helpers';
-import { Material } from '../types';
+import React, { useState, useRef } from 'react'
+import { useMaterials } from '../hooks/useData'
+import { parseBloxelizerCSV } from '../utils/calculations'
 
 interface CSVImporterProps {
-  onImport: (materials: Material[]) => void;
+  projectId: string
+  onImportComplete: () => void
 }
 
-export const CSVImporter: React.FC<CSVImporterProps> = ({ onImport }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export const CSVImporter: React.FC<CSVImporterProps> = ({ projectId, onImportComplete }) => {
+  const { importMaterials } = useMaterials(projectId)
+  const [isImporting, setIsImporting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result as string;
-      let materials: Material[] = [];
+    setIsImporting(true)
+    setError(null)
 
-      if (file.name.endsWith('.csv')) {
-        materials = parseCSV(content);
-      } else if (file.name.endsWith('.txt')) {
-        materials = parseTXT(content);
+    try {
+      const text = await file.text()
+      const parsedData = parseBloxelizerCSV(text)
+
+      if (parsedData.length === 0) {
+        throw new Error('有効なデータが見つかりませんでした')
       }
 
-      if (materials.length > 0) {
-        onImport(materials);
-      } else {
-        alert('有効なデータが見つかりませんでした。');
+      await importMaterials(parsedData)
+      onImportComplete()
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
       }
-    };
-
-    reader.readAsText(file);
-    
-    // Reset input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'インポートに失敗しました')
+    } finally {
+      setIsImporting(false)
     }
-  };
+  }
 
   return (
-    <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 text-center">
-      <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-        CSV/TXT ファイルをインポート
-      </h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-        Bloxelizer が出力した CSV または TXT ファイルを読み込みます
+    <div className="p-4 border rounded-lg bg-gray-50">
+      <h3 className="font-semibold mb-2">CSV/TXT インポート</h3>
+      <p className="text-sm text-gray-600 mb-4">
+        Bloxelizer が出力した CSV または TXT ファイルをインポートします
       </p>
+      
       <input
         ref={fileInputRef}
         type="file"
         accept=".csv,.txt"
         onChange={handleFileSelect}
-        className="hidden"
-        id="csv-import"
+        disabled={isImporting}
+        className="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded file:border-0
+          file:text-sm file:font-semibold
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100"
       />
-      <Button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-2">
-        <FileText className="h-4 w-4" />
-        ファイルを選択
-      </Button>
-      <div className="mt-4 text-xs text-gray-500">
-        対応フォーマット：Bloxelizer CSV, Bloxelizer TXT
-      </div>
+
+      {isImporting && (
+        <p className="mt-2 text-blue-600">インポート中...</p>
+      )}
+
+      {error && (
+        <p className="mt-2 text-red-600">{error}</p>
+      )}
     </div>
-  );
-};
+  )
+}
